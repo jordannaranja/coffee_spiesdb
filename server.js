@@ -3,7 +3,9 @@
 
 const database = require('./mysqlDatabase')
 
+const jwt = require('.jwt')
 const express = require('express')
+const { RSA_SSLV23_PADDING } = require('node:constants')
 
 const app = express()
 
@@ -21,20 +23,30 @@ app.get('/api/Users', (req, res) => {
     })
 })
 
-app.post('/api/Users', (req, res) => {
-    const Users = req.body
+// ------------- POST -----------------------------------
 
-    database.createItem(Users, (error, UsersId) => {
+// 1. Create a post 
 
-        if (error) {
-            res.send({ error })
-            return
-        }
+app.post('api/posts', jwt.authorize, upload.single('image'), async (req, res) => {
 
-        Users.id = UsersId
+    const {filename, path} = req.file 
+    const caption = req.body.caption
+    const img_src =
+    await s3.uploadFile(req.file)
 
-        res.send({ Users })
+//save details to database 
+console.log(req.user)
+database.createPost(img_src, caption, req.user.user_id, (error, insertId) => {
+    if (error) {
+        res.send({error: error.message})
+        return
+    }
+    res.send({
+        id: insertId, 
+        img_src, 
+        caption,
     })
+})
 })
 
 
