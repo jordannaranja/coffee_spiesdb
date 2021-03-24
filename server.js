@@ -1,13 +1,20 @@
   
+
 //This will be the main file for the app that will be responsible for managing all of the HTTP requests.
+// 1
+const fs = require('fs')
+const multer = require('multer')
+// 2
+const upload = multer({ dest: 'images/' })
 
 const database = require('./mysqlDatabase')
+
+const app = express()
 
 const jwt = require('.jwt')
 const express = require('express')
 const { RSA_SSLV23_PADDING } = require('node:constants')
 
-const app = express()
 
 app.use(express.json()) // tells express to accept any JSON body data that client sends in an http request
 
@@ -84,11 +91,24 @@ app.patch('/api/Users/:id', (req, res) => {
     })
   })
   
+  app.get('/images/:imageName', (req, res) => {
+    // do a bunch of if statements to make sure the user is 
+    // authorized to view this image, then
   
+    const imageName = req.params.imageName
+    const readStream = fs.createReadStream(`images/${imageName}`)
+    readStream.pipe(res)
+  })
 
-app.post('/images', (req, res) => {
-
-  res.send("🤗")
-})
+  app.post('/images', upload.single('image'), (req, res) => {
+    // 4
+    const imagePath = req.file.path
+    const description = req.body.description
+  
+    // Save this data to a database probably
+  
+    console.log(description, imagePath)
+    res.send({description, imagePath})
+  })
 
 app.listen(8080, () => console.log("listening on port 8080"))
