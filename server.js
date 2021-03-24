@@ -86,9 +86,9 @@ app.patch('/api/Users/:id', (req, res) => {
   
   
 
-  app.post('/images', (req, res) => {
+app.post('/images', (req, res) => {
 
-    res.send("🤗")
-  })
-  
-  app.listen(8080, () => console.log("listening on port 8080"))
+  res.send("🤗")
+})
+
+app.listen(8080, () => console.log("listening on port 8080"))
